@@ -461,7 +461,7 @@
     <div id="particles-js"></div>
     
     <div class="navbar flex items-center">
-        <img src="https://live.staticflickr.com/65535/54522534773_92c69b50a7_z.jpg" alt="Google Developers" height="28" width="182">
+        <img src="https://live.staticflickr.com/65535/54522534773_92c69b50a7_z.jpg" alt="Google Developers" height="40" width="280">
         <div class="flex-grow"></div>
         <h1 class="text-lg font-medium">Gacha Wheel</h1>
     </div>
@@ -495,7 +495,7 @@
         <div class="merch-section">
             <h2 class="merch-title">GDG T-Shirt</h2>
             <div class="merch-item" style="width: 100%; padding: 2rem; cursor: pointer;" id="show-tshirt">
-                <img src="https://foto.kontan.co.id/iQnszAxkehh5kjQ2aktpItC2b2w=/smart/2022/11/14/1047985809p.jpg" alt="GDGoC Universitas Pasundan T-Shirt" class="merch-image" style="height: 200px;">
+                <img src="https://media.discordapp.net/attachments/1148289078178103310/1372776605503717376/MockupTshirtFull.jpg?ex=68280157&is=6826afd7&hm=6b6db88d5dd78dd2e1359efdfdec6b4d36513712277359016a6b5bcfb77fe9a7&=&format=webp&width=1353&height=902" alt="GDGoC Universitas Pasundan T-Shirt" class="merch-image" style="height: 200px;">
                 <div class="merch-name" style="font-size: 1.25rem; margin: 1rem 0;">GDGoC Universitas Pasundan T-Shirt</div>
                 <div class="merch-price" style="font-size: 1.2rem; color: #4285f4;">Rp50.000</div>
                 <p style="color: #5f6368; margin-top: 0.5rem; font-size: 0.9rem;">Available at the GDGoC booth</p>
@@ -524,8 +524,8 @@
             <!-- T-shirt image viewer with front/back options -->
             <div style="margin-bottom: 1.5rem; text-align: center;">
                 <div style="position: relative; width: 100%; height: 300px; margin-bottom: 1rem;">
-                    <img id="tshirt-front-img" src="https://down-id.img.susercontent.com/file/sg-11134201-22110-6447droakljvd2" alt="GDG T-Shirt Front" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 1;">
-                    <img id="tshirt-back-img" src="https://foto.kontan.co.id/iQnszAxkehh5kjQ2aktpItC2b2w=/smart/2022/11/14/1047985809p.jpg" alt="GDG T-Shirt Back" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 0;">
+                    <img id="tshirt-front-img" src="https://media.discordapp.net/attachments/1148289078178103310/1372776605985935442/MockupTshirt.jpg?ex=68280157&is=6826afd7&hm=2b9b2ffd2676c0de6acac28fadd279e74c20145d947990ece06db2c89ab60f1e&=&format=webp&width=672&height=902" alt="GDG T-Shirt Front" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 1;">
+                    <img id="tshirt-back-img" src="https://media.discordapp.net/attachments/1148289078178103310/1372776604673249300/MockupTshirt2.jpg?ex=68280157&is=6826afd7&hm=72ec505b7ebc368492ff4d8e569a34e9d20472b7ebafcd781d8b4cff60f434f8&=&format=webp&width=682&height=902" alt="GDG T-Shirt Back" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 0;">
                 </div>
                 <div style="display: flex; justify-content: center; gap: 1rem;">
                     <button id="view-front-btn" style="padding: 0.5rem 1rem; border: 1px solid #dadce0; border-radius: 4px; background: #e8f0fe; cursor: pointer; font-weight: 500; color: #1a73e8;">Front View</button>
@@ -578,11 +578,11 @@
 
         // Rarity configuration with Google colors - simplified
         const RARITIES = {
-            SSR: { rate: 0.5, color: '#f8f9fa', textColor: '#202124', name: 'SSR' }, // White
-            SR: { rate: 0.2, color: '#f8f9fa', textColor: '#202124', name: 'SR' }, // White
-            R: { rate: 0.2, color: '#f8f9fa', textColor: '#202124', name: 'R' }, // White
-            COMMON: { rate: 99, color: '#f8f9fa', textColor: '#202124', name: 'COMMON' }, // White
-            LOSE: { rate: 0.1, color: '#f8f9fa', textColor: '#202124', name: 'LOSE' } // White
+            SSR: { rate: 0, color: '#f8f9fa', textColor: '#202124', name: 'SSR' }, // White
+            SR: { rate: 0, color: '#f8f9fa', textColor: '#202124', name: 'SR' }, // White
+            R: { rate: 0, color: '#f8f9fa', textColor: '#202124', name: 'R' }, // White
+            COMMON: { rate: 100, color: '#f8f9fa', textColor: '#202124', name: 'COMMON' }, // White
+            LOSE: { rate: 0, color: '#f8f9fa', textColor: '#202124', name: 'LOSE' } // White
         };
 
         // Prize list with Google products - reordered to put stickers at top
@@ -615,7 +615,7 @@
             { 
                 label: 'Nothing', 
                 rarity: 'LOSE', 
-                image: 'https://psrefstuff.lenovo.com/syspool//Sys/Image/Legion/Legion_5_15ARH7H/Lenovo_Legion_5_15ARH7H_CT2_02.png'
+                image: 'https://cdn.vectorstock.com/i/1000v/06/81/lose-icon-image-vector-47400681.jpg'
             }
         ];
 
@@ -623,7 +623,7 @@
         let deg = 0;
         let wheel = document.getElementById('wheel');
         let winner = null;
-        let spinSound, winSound, nearMissSound, loseSound;
+        let spinSound, winSound, loseSound, merchandiseSound;
         let hammer = null;
 
         // Motivation messages with Google-themed text
@@ -632,11 +632,23 @@
             "Your next spin could be lucky!",
             "One more spin for a legendary prize!",
             "Fortune is smiling on you!",
-            "The grand prize is within reach!"
+            "The grand prize is within reach!",
+            "Don't give up! Spin again for a chance to win!",
+            "So close! Try one more time!",
+            "Better luck on your next spin!",
+            "Keep trying! You might win stickers next time!"
         ];
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
+            // Play welcome sound
+            const welcomeSound = new Howl({
+                src: ['mp3/welcome.mp3'],
+                volume: 0.5,
+                html5: true
+            });
+            welcomeSound.play();
+            
             // Handle image errors
             const handleImageError = (img) => {
                 img.onerror = null; // Prevent infinite loops
@@ -708,11 +720,15 @@
             showTshirtBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent triggering the parent div click
                 tshirtModal.classList.add('active');
+                // Play merchandise sound
+                if (merchandiseSound) merchandiseSound.play();
             });
             
             // Open modal when T-shirt div is clicked
             showTshirt.addEventListener('click', () => {
                 tshirtModal.classList.add('active');
+                // Play merchandise sound
+                if (merchandiseSound) merchandiseSound.play();
             });
             
             // Close modal when X is clicked
@@ -735,24 +751,26 @@
 
         function initializeSounds() {
             try {
-                // Use real sound URLs from freesound.org
+                // Use local MP3 files instead of online sources
                 spinSound = new Howl({ 
-                    src: ['https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=wheel-spin-6320.mp3'], 
+                    src: ['mp3/spin the wheel.mp3'], 
                     volume: 0.5,
                     html5: true
                 });
                 winSound = new Howl({ 
-                    src: ['https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=success-1-6297.mp3'], 
+                    src: ['mp3/congrats you won GDG stickers.mp3'], 
                     volume: 0.5,
                     html5: true
                 });
-                nearMissSound = new Howl({ 
-                    src: ['https://cdn.pixabay.com/download/audio/2022/11/21/audio_00fc05c666.mp3?filename=click-menu-app-147357.mp3'], 
-                    volume: 0.7,
+                loseSound = new Howl({ 
+                    src: ['mp3/try again.mp3'], 
+                    volume: 0.6,
                     html5: true
                 });
-                loseSound = new Howl({ 
-                    src: ['https://cdn.pixabay.com/download/audio/2022/03/15/audio_942b7c4f74.mp3?filename=negative_beeps-6008.mp3'], 
+                
+                // Merchandise sound
+                merchandiseSound = new Howl({
+                    src: ['mp3/merchandise.mp3'],
                     volume: 0.6,
                     html5: true
                 });
@@ -933,8 +951,11 @@
                 duration: 0.5
             });
 
-            // Always select the COMMON item (sticker)
-            const targetRarity = "COMMON";
+            // Randomly decide if the user wins or loses (50% chance to win)
+            const isWin = Math.random() < 0.5;
+            
+            // Select either a sticker (win) or nothing (lose)
+            const targetRarity = isWin ? "COMMON" : "LOSE";
             winner = getItemByRarity(targetRarity);
 
             const winnerIndex = items.findIndex(item =>
@@ -947,6 +968,9 @@
                 document.getElementById('spin-button').disabled = false;
                 return;
             }
+
+            // Play spin sound
+            if (spinSound) spinSound.play();
 
             // Use a shorter duration for faster results - 3 seconds instead of 5
             animateArrow(winnerIndex, 3, targetRarity);
@@ -964,8 +988,6 @@
             
             // Reset arrow rotation before starting animation to ensure consistent behavior
             gsap.set(arrow, { rotation: 0 });
-            
-            if (spinSound) spinSound.play();
 
             const timeline = gsap.timeline({
                 onComplete: () => {
@@ -978,18 +1000,18 @@
                         duration: 0.5
                     });
                     
-                    if (winner.rarity === 'LOSE') {
-                        if (loseSound) loseSound.play();
-                    } else if (winner.rarity === 'SSR') {
-                        if (winSound) winSound.play();
-                    } else {
-                        if (nearMissSound) nearMissSound.play();
+                    // Play win sound for stickers or lose sound for nothing
+                    if (winner.rarity === 'COMMON' && winSound) {
+                        winSound.play();
+                    } else if (winner.rarity === 'LOSE' && loseSound) {
+                        loseSound.play();
                     }
                     
                     // Highlight winner and show popup immediately
                     highlightWinner(index);
                     showWinner(); // Show popup immediately
                     
+                    // Only launch confetti for wins (stickers or better)
                     if (winner.rarity !== 'LOSE') {
                         launchConfetti(winner.rarity);
                     }
@@ -998,56 +1020,14 @@
                 }
             });
 
-            // Ensure we always have at least a simple animation
+            // Simple animation directly to the target (sticker)
             timeline.to(arrow, {
-                rotation: baseRotation * 0.5,
-                duration: duration * 0.3,
+                rotation: baseRotation * 0.7,
+                duration: duration * 0.5,
                 ease: 'power2.out'
-            });
-
-            // Add some fake suspense with near misses
-            const hasNearMiss = Math.random() < 0.6; // Reduced from 80% to 60% chance for faster results
-            if (hasNearMiss) {
-                // Find a non-COMMON item for near miss
-                const nonCommonIndices = items
-                    .map((item, i) => item.rarity !== 'COMMON' ? i : -1)
-                    .filter(i => i !== -1);
-                
-                if (nonCommonIndices.length > 0) {
-                    // Pick a random non-COMMON item
-                    const nearMissIndex = nonCommonIndices[Math.floor(Math.random() * nonCommonIndices.length)];
-                    const nearMissAngle = nearMissIndex * sliceAngle;
-
-                    // Create more dramatic near misses with multiple slowdowns but faster
-                    timeline
-                        .to(arrow, {
-                            rotation: baseRotation * 0.8 + nearMissAngle - (sliceAngle * 0.3),
-                            duration: duration * 0.2, // Reduced from 0.3 to 0.2
-                            ease: 'power1.inOut'
-                        })
-                        .to(arrow, {
-                            rotation: baseRotation * 0.8 + nearMissAngle + (sliceAngle * 0.3),
-                            duration: duration * 0.1, // Reduced from 0.15 to 0.1
-                            ease: 'power1.inOut'
-                        });
-                    
-                    // Add a second near miss for more drama but faster
-                    const secondMissIndex = nonCommonIndices[(nonCommonIndices.indexOf(nearMissIndex) + 1) % nonCommonIndices.length];
-                    const secondMissAngle = secondMissIndex * sliceAngle;
-                    
-                    timeline
-                        .to(arrow, {
-                            rotation: baseRotation * 0.9 + secondMissAngle - (sliceAngle * 0.2),
-                            duration: duration * 0.05, // Reduced from 0.1 to 0.05
-                            ease: 'power1.inOut'
-                        });
-                }
-            }
-            
-            // Always add final rotation to ensure the animation completes properly
-            timeline.to(arrow, {
+            }).to(arrow, {
                 rotation: finalAngle,
-                duration: duration * 0.35,
+                duration: duration * 0.5,
                 ease: 'power3.out'
             });
             
@@ -1194,6 +1174,10 @@
             const motivationDiv = document.getElementById('motivation');
             if (winner.rarity === 'SSR') {
                 motivationDiv.textContent = "Amazing! You won the GDG Swag Pack!";
+            } else if (winner.rarity === 'COMMON') {
+                motivationDiv.textContent = "Congratulations! You won GDG Stickers!";
+            } else if (winner.rarity === 'LOSE') {
+                motivationDiv.textContent = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
             } else {
                 motivationDiv.textContent = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
             }
