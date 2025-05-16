@@ -951,8 +951,8 @@
                 duration: 0.5
             });
 
-            // Randomly decide if the user wins or loses (50% chance to win)
-            const isWin = Math.random() < 0.5;
+            // Randomly decide if the user wins or loses (70% chance to win)
+            const isWin = Math.random() < 0.7;
             
             // Select either a sticker (win) or nothing (lose)
             const targetRarity = isWin ? "COMMON" : "LOSE";
