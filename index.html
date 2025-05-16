@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Gacha Wheel</title>
+    <!-- CDN for Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <!-- CDN for GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- CDN for canvas-confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <!-- CDN for Howler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+    <!-- CDN for Hammer.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <!-- CDN for Particles.js -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <!-- Google Sans font -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background-color: #f0f0f0;
+            color: #1e1e1e;
+        }
+        
+        .wheel-wrapper {
+            touch-action: none;
+            user-select: none;
+            position: relative;
+            padding: 20px;
+            border: 12px solid #4285f4;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(66, 133, 244, 0.6);
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,240,240,0.5) 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .wheel-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(15px);
+        }
+        
+        .wheel {
+            transform-origin: center;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .segment {
+            transition: all 0.3s ease;
+            transform-origin: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .segment span {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .segment-image {
+            width: 90px;  /* Increased from 70px */
+            height: 90px; /* Increased from 70px */
+            object-fit: contain;
+            background: rgba(255,255,255,0.95); /* More opaque background */
+            border-radius: 8px;
+            padding: 6px; /* Increased padding */
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* Stronger shadow */
+            transition: all 0.3s ease;
+            margin-bottom: 8px; /* Add space between image and text */
+            z-index: 2; /* Ensure images appear above segment backgrounds */
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .segment-label {
+            font-size: 1rem; /* Increased from 0.875rem */
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-top: 8px;
+            max-width: 120px; /* Increased from 100px */
+            text-align: center;
+            background-color: rgba(0,0,0,0.4); /* Add background to make text more readable */
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .arrow {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: #ea4335;
+            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.4));
+            z-index: 10;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            transition: all 0.3s ease;
+        }
+        
+        .arrow::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .button {
+            border-radius: 24px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+            letter-spacing: 0.25px;
+            text-transform: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .spin-button {
+            background-color: #4285f4;
+            color: white;
+        }
+        
+        .spin-button:hover {
+            background-color: #3367d6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+        }
+        
+        .spin-button:disabled {
+            background-color: #bdc1c6;
+            cursor: not-allowed;
+        }
+        
+        .dev-mode-button {
+            background-color: #ea4335;
+            color: white;
+        }
+        
+        .dev-mode-button:hover {
+            background-color: #d33426;
+        }
+        
+        .glow-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(66, 133, 244, 0.7) 0%, transparent 70%);
+            opacity: 0;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+        
+        .stats-box {
+            background: white;
+            border: 2px solid #4285f4;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+        
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .result-card {
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            padding: 1rem;
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+        }
+        
+        .footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #5f6368;
+        }
+
+        /* Popup styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .popup-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            position: relative;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        
+        .popup-overlay.active .popup-content {
+            transform: translateY(0);
+        }
+        
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #f1f3f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .popup-close:hover {
+            background-color: #e8eaed;
+        }
+        
+        .popup-image {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            object-fit: contain;
+        }
+        
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .popup-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .popup-rarity {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <div class="navbar flex items-center">
+        <img src="https://live.staticflickr.com/65535/54522534773_92c69b50a7_z.jpg" alt="Google Developers" height="28" width="182">
+        <div class="flex-grow"></div>
+        <h1 class="text-lg font-medium">Gacha Wheel</h1>
+    </div>
+    
+    <div id="app" class="container">
+        <div class="wheel-wrapper">
+            <div class="wheel relative w-[500px] h-[500px] rounded-full shadow-lg" id="wheel">
+                <div class="glow-effect" id="glow"></div>
+                <div class="arrow"></div>
+            </div>
+        </div>
+        
+        <p class="text-center text-xl font-medium">Spin the Wheel of Fortune!</p>
+        
+        <button id="spin-button" class="button spin-button flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                <path d="M12 18l-3-3 3-3"></path>
+                <path d="M8 15h8"></path>
+            </svg>
+            Spin Now!
+        </button>
+        
+        <div id="motivation" class="text-center text-gray-700 max-w-xs"></div>
+        
+        <div class="stats-box p-4 w-72 hidden">
+            <h3 class="font-medium mb-2 text-gray-800">Gacha Statistics:</h3>
+            <div id="stats" class="grid grid-cols-1 gap-2">
+                <!-- Stats will be inserted here without showing rates -->
+            </div>
+            <div class="mt-2 text-center text-gray-700" id="total-spin">Total Spins: 0</div>
+        </div>
+        
+        <button id="dev-button" class="button dev-mode-button hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"></path>
+            </svg>
+            Reset Statistics
+        </button>
+    </div>
+    
+    <!-- Result Popup -->
+    <div class="popup-overlay" id="result-popup">
+        <div class="popup-content">
+            <div class="popup-close" id="popup-close">✕</div>
+            <img src="" alt="" class="popup-image" id="popup-image">
+            <div class="popup-title" id="popup-title"></div>
+            <div class="popup-subtitle" id="popup-subtitle"></div>
+            <div class="popup-rarity" id="popup-rarity"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        © 2025 Google Developer Groups on Campus
+    </div>
+
+    <script>
+        // Initialize Particles.js with Google-themed colors
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 50, density: { enable: true, value_area: 800 } },
+                color: { value: ['#4285f4', '#34a853', '#fbbc05', '#ea4335'] },
+                shape: { type: 'circle', stroke: { width: 0, color: '#000000' } },
+                opacity: { value: 0.3, random: true },
+                size: { value: 4, random: true },
+                line_linked: { enable: false },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    onclick: { enable: true, mode: 'push' },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+
+        // Rarity configuration with Google colors
+        const RARITIES = {
+            SSR: { rate: 0.5, color: '#4285f4', textColor: 'white', name: 'SSR' }, // Blue
+            SR: { rate: 0.2, color: '#ea4335', textColor: 'white', name: 'SR' }, // Red
+            R: { rate: 0.2, color: '#34a853', textColor: 'white', name: 'R' }, // Green
+            COMMON: { rate: 99, color: '#fbbc05', textColor: 'white', name: 'COMMON' }, // Yellow
+            LOSE: { rate: 0.1, color: '#bdc1c6', textColor: 'white', name: 'LOSE' } // Gray
+        };
+
+        // Prize list with Google products
+        const items = [
+            { 
+                label: 'Google Pixel 8', 
+                rarity: 'SSR', 
+                image: 'https://t-mobile.scene7.com/is/image/Tmusprod/Google-Pixel-9a-Iris-frontimage_v2'
+            },
+            { 
+                label: 'Google Nest Hub', 
+                rarity: 'SR', 
+                image: 'https://lh3.googleusercontent.com/uQZNPuGyf7dKvtGZWjoiyGcPg_A44yUS2tx-o2--dyuwp9A1vR4Efh1UF28KKLpGUg=w895'
+            },
+            { 
+                label: 'Pixel Buds Pro', 
+                rarity: 'R', 
+                image: 'https://images.tokopedia.net/img/cache/700/hDjmkQ/2022/10/4/7082ea6a-cd78-4302-87be-7575316b948d.jpg'
+            },
+            { 
+                label: 'GDG Stickers', 
+                rarity: 'COMMON', 
+                image: 'https://i.ibb.co/TqnYdnG3/Sticker2.png'
+            },
+            { 
+                label: 'Pixel Watch', 
+                rarity: 'R', 
+                image: 'https://cdn.idntimes.com/content-images/post/20231006/hero-pixel-watch-2width-1000format-webp-3714233e689ae5e3d3cf12c966ec032c_600x400.jpg'
+            },
+            { 
+                label: 'Nothing', 
+                rarity: 'LOSE', 
+                image: 'https://developers.google.com/site-assets/images/home/developers-logo-color.svg'
+            }
+        ];
+
+        let spinning = false;
+        let deg = 0;
+        let wheel = document.getElementById('wheel');
+        let winner = null;
+        let spinSound, winSound, nearMissSound, loseSound;
+        let hammer = null;
+
+        // Local statistics
+        let spinCount = 0;
+        let wonCount = { SSR: 0, SR: 0, R: 0, COMMON: 0, LOSE: 0 };
+
+        // Developer Mode
+        let devMode = false;
+        let keyPressSequence = [];
+        const DEV_MODE_SEQUENCE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'KeyA', 'KeyB'];
+
+        // Motivation messages with Google-themed text
+        const MOTIVATION_MESSAGES = [
+            "Almost got the grand prize! Try again!",
+            "Your next spin could be lucky!",
+            "One more spin for a legendary prize!",
+            "Fortune is smiling on you!",
+            "The grand prize is within reach!"
+        ];
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            
+            // Handle image errors
+            const handleImageError = (img) => {
+                img.onerror = null; // Prevent infinite loops
+                if (img.src.includes('i.imgur.com')) {
+                    // Fallback for imgur images
+                    img.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    console.log('Using fallback image for stickers');
+                }
+            };
+            
+            // Update the sticker image if needed
+            const stickerItem = items.find(item => item.label === 'GDG Stickers');
+            if (stickerItem) {
+                const testImg = new Image();
+                testImg.onerror = () => {
+                    stickerItem.image = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    console.log('Updated sticker image to fallback URL');
+                };
+                testImg.src = stickerItem.image;
+            }
+            
+            initializeSounds();
+            setupWheel();
+            setupHammerJS();
+            renderStats();
+            window.addEventListener('keydown', handleKeyPress);
+            window.resetWheelStats = resetStatistics;
+            document.getElementById('spin-button').addEventListener('click', () => spinWheel(4));
+            
+            // Close popup when clicking outside
+            document.getElementById('result-popup').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('result-popup')) {
+                    document.getElementById('result-popup').classList.remove('active');
+                }
+            });
+        });
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            window.removeEventListener('keydown', handleKeyPress);
+            delete window.resetWheelStats;
+            if (hammer) hammer.destroy();
+        });
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('googleWheelGameData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    spinCount = data.spinCount || 0;
+                    wonCount = { ...wonCount, ...data.wonCount };
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('googleWheelGameData', JSON.stringify({
+                    spinCount,
+                    wonCount
+                }));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function initializeSounds() {
+            try {
+                // Use real sound URLs from freesound.org
+                spinSound = new Howl({ 
+                    src: ['https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=wheel-spin-6320.mp3'], 
+                    volume: 0.5,
+                    html5: true
+                });
+                winSound = new Howl({ 
+                    src: ['https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=success-1-6297.mp3'], 
+                    volume: 0.5,
+                    html5: true
+                });
+                nearMissSound = new Howl({ 
+                    src: ['https://cdn.pixabay.com/download/audio/2022/11/21/audio_00fc05c666.mp3?filename=click-menu-app-147357.mp3'], 
+                    volume: 0.7,
+                    html5: true
+                });
+                loseSound = new Howl({ 
+                    src: ['https://cdn.pixabay.com/download/audio/2022/03/15/audio_942b7c4f74.mp3?filename=negative_beeps-6008.mp3'], 
+                    volume: 0.6,
+                    html5: true
+                });
+            } catch (error) {
+                console.error('Error initializing sounds:', error);
+            }
+        }
+
+        function setupWheel() {
+            wheel.innerHTML = '<div class="glow-effect" id="glow"></div><div class="arrow"></div>';
+            const sliceAngle = 360 / items.length;
+            
+            // Calculate optimal positioning based on number of items
+            const distanceFromCenter = items.length <= 6 ? 170 : 150;
+            const imageSize = items.length <= 6 ? 90 : 70;
+            
+            items.forEach((item, i) => {
+                const segment = document.createElement('div');
+                segment.className = `segment absolute w-full h-full`;
+                segment.style.transform = `rotate(${i * sliceAngle}deg)`;
+                segment.style.clipPath = `path('M 250 250 L 250 0 A 250 250 0 0 1 ${250 + 250 * Math.cos(sliceAngle * Math.PI / 180)} ${250 - 250 * Math.sin(sliceAngle * Math.PI / 180)} Z')`;
+                
+                // Create gradient background for segments
+                const mainColor = RARITIES[item.rarity].color;
+                const lighterColor = adjustColor(mainColor, 30);
+                segment.style.background = `linear-gradient(${i * sliceAngle + 45}deg, ${mainColor} 0%, ${lighterColor} 100%)`;
+                
+                // Add border between segments
+                segment.style.border = '1px solid rgba(255,255,255,0.3)';
+                
+                // Create content container with improved positioning
+                const content = document.createElement('div');
+                content.className = 'absolute flex flex-col items-center justify-center';
+                
+                // Calculate optimal position based on slice angle
+                const contentAngle = -(i * sliceAngle + sliceAngle / 2);
+                const radians = contentAngle * Math.PI / 180;
+                
+                // Position at a fixed distance from center along the segment's midline
+                const posX = Math.sin(radians) * distanceFromCenter;
+                const posY = -Math.cos(radians) * distanceFromCenter;
+                
+                content.style.transform = `translate(-50%, -50%) rotate(${contentAngle}deg)`;
+                content.style.left = `calc(50% + ${posX}px)`;
+                content.style.top = `calc(50% + ${posY}px)`;
+                content.style.width = '140px'; // Increased from 120px
+                content.style.zIndex = '5'; // Ensure content appears above segment backgrounds
+                
+                // Create image container with improved styling for clarity
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'flex items-center justify-center';
+                imgContainer.style.width = `${imageSize}px`;
+                imgContainer.style.height = `${imageSize}px`;
+                imgContainer.style.backgroundColor = 'rgba(255,255,255,0.9)';
+                imgContainer.style.borderRadius = '8px';
+                imgContainer.style.padding = '4px';
+                imgContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                imgContainer.style.marginBottom = '12px';
+                
+                // Create image element with better styling
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.label;
+                img.className = 'segment-image';
+                img.style.objectFit = 'contain';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.transition = 'transform 0.3s ease';
+                
+                // Handle image errors
+                img.onerror = () => {
+                    console.log(`Error loading image for ${item.label}, using fallback`);
+                    if (item.label === 'GDG Stickers') {
+                        img.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    }
+                };
+                
+                // Special handling for the custom sticker image
+                if (item.label === 'GDG Stickers') {
+                    img.style.background = 'transparent';
+                }
+                
+                imgContainer.appendChild(img);
+                
+                // Add label text with better styling
+                const labelText = document.createElement('div');
+                labelText.textContent = item.label;
+                labelText.className = 'segment-label';
+                
+                // Add rarity badge
+                const rarityBadge = document.createElement('div');
+                rarityBadge.textContent = RARITIES[item.rarity].name;
+                rarityBadge.className = 'text-xs mt-1';
+                rarityBadge.style.background = 'rgba(255,255,255,0.2)';
+                rarityBadge.style.borderRadius = '10px';
+                rarityBadge.style.padding = '1px 6px';
+                rarityBadge.style.display = 'inline-block';
+                
+                content.appendChild(imgContainer);
+                content.appendChild(labelText);
+                content.appendChild(rarityBadge);
+                
+                segment.appendChild(content);
+                wheel.appendChild(segment);
+            });
+        }
+
+        function setupHammerJS() {
+            if (!wheel) return;
+            hammer = new Hammer(wheel);
+            hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+            hammer.on('swipeup swipedown', (e) => {
+                if (!spinning) {
+                    const swipeVelocity = Math.abs(e.velocity);
+                    const duration = Math.max(2, Math.min(6, 7 - swipeVelocity));
+                    spinWheel(duration);
+                }
+            });
+        }
+
+        function getRandomRarity() {
+            const totalRate = Object.values(RARITIES).reduce((sum, r) => sum + r.rate, 0);
+            const rand = Math.random() * totalRate;
+            let cumulative = 0;
+            for (const [key, rarity] of Object.entries(RARITIES)) {
+                cumulative += rarity.rate;
+                if (rand <= cumulative) return key;
+            }
+            return 'COMMON';
+        }
+
+        function getItemByRarity(rarity) {
+            const availableItems = items.filter(item => item.rarity === rarity);
+            return availableItems[Math.floor(Math.random() * availableItems.length)] || items[items.length - 1];
+        }
+
+        function getNearMissRarity(targetRarity) {
+            const rarityOrder = ['SSR', 'SR', 'R', 'COMMON', 'LOSE'];
+            const currentIndex = rarityOrder.indexOf(targetRarity);
+            const higherRarities = rarityOrder.slice(0, currentIndex).filter(r => r !== 'LOSE');
+            if (higherRarities.length === 0) return null;
+            return higherRarities[Math.floor(Math.random() * higherRarities.length)];
+        }
+
+        function spinWheel(spinDuration) {
+            if (spinning || !wheel) return;
+            spinning = true;
+            document.getElementById('spin-button').disabled = true;
+
+            // Add spinning glow effect
+            gsap.to('.wheel-wrapper', {
+                boxShadow: '0 0 40px rgba(66, 133, 244, 0.8)',
+                duration: 0.5
+            });
+
+            const targetRarity = getRandomRarity();
+            winner = getItemByRarity(targetRarity);
+            wonCount[targetRarity] = (wonCount[targetRarity] || 0) + 1;
+            spinCount++;
+
+            saveToLocalStorage();
+            renderStats();
+
+            const winnerIndex = items.findIndex(item =>
+                item.label === winner.label && item.rarity === winner.rarity
+            );
+
+            if (winnerIndex === -1) {
+                console.error('Winner item not found in items array');
+                spinning = false;
+                document.getElementById('spin-button').disabled = false;
+                return;
+            }
+
+            animateWheel(winnerIndex, spinDuration, targetRarity);
+        }
+
+        function animateWheel(index, duration, targetRarity) {
+            const sliceAngle = 360 / items.length;
+            const randomOffset = Math.random() * (sliceAngle * 0.8);
+            const baseRotation = 360 * (5 + Math.floor(Math.random() * 3));
+            const targetAngle = baseRotation + (360 - index * sliceAngle - randomOffset);
+
+            deg += targetAngle;
+
+            if (spinSound) spinSound.play();
+
+            const timeline = gsap.timeline({
+                onComplete: () => {
+                    spinning = false;
+                    document.getElementById('spin-button').disabled = false;
+                    
+                    // Reset wheel wrapper glow
+                    gsap.to('.wheel-wrapper', {
+                        boxShadow: '0 0 30px rgba(66, 133, 244, 0.6)',
+                        duration: 0.5
+                    });
+                    
+                    if (winner.rarity === 'LOSE') {
+                        if (loseSound) loseSound.play();
+                    } else if (winner.rarity === 'SSR') {
+                        if (winSound) winSound.play();
+                    } else {
+                        if (nearMissSound) nearMissSound.play();
+                    }
+                    highlightWinner(index);
+                    if (winner.rarity !== 'LOSE') {
+                        launchConfetti(winner.rarity);
+                    }
+                    showWinner();
+                    showMotivation();
+                }
+            });
+
+            // Determine if near-miss occurs (50% chance)
+            const hasNearMiss = Math.random() < 0.5;
+            if (hasNearMiss) {
+                const nearMissRarity = getNearMissRarity(targetRarity);
+                if (nearMissRarity) {
+                    const nearMissIndex = items.findIndex(item => item.rarity === nearMissRarity);
+                    const nearMissAngle = baseRotation - (nearMissIndex * sliceAngle) - (sliceAngle / 2);
+
+                    timeline
+                        .to(wheel, {
+                            rotation: nearMissAngle,
+                            duration: duration * 0.5,
+                            ease: 'power2.inOut'
+                        })
+                        .to(wheel, {
+                            rotation: nearMissAngle + sliceAngle * 0.5,
+                            duration: duration * 0.3,
+                            ease: 'sine.inOut' // Natural slowdown
+                        })
+                        .to(wheel, {
+                            rotation: deg,
+                            duration: duration * 0.2,
+                            ease: 'power4.out'
+                        });
+
+                    gsap.to('#glow', {
+                        opacity: 0.9,
+                        duration: 0.4,
+                        repeat: 7,
+                        yoyo: true,
+                        delay: duration * 0.5
+                    });
+                } else {
+                    // Without near-miss, spin directly
+                    timeline.to(wheel, {
+                        rotation: deg,
+                        duration: duration,
+                        ease: 'power4.out'
+                    });
+                    gsap.to('#glow', {
+                        opacity: 0.7,
+                        duration: 0.5,
+                        repeat: 5,
+                        yoyo: true
+                    });
+                }
+            } else {
+                // Without near-miss
+                timeline.to(wheel, {
+                    rotation: deg,
+                    duration: duration,
+                    ease: 'power4.out'
+                });
+                gsap.to('#glow', {
+                    opacity: 0.7,
+                    duration: 0.5,
+                    repeat: 5,
+                    yoyo: true
+                });
+            }
+            
+            // Add wobble effect at the end
+            timeline.to(wheel, {
+                rotation: `+=${Math.random() * 5 - 2.5}`,
+                duration: 0.2,
+                ease: 'power1.inOut',
+                delay: duration - 0.2
+            });
+        }
+
+        function highlightWinner(index) {
+            const segments = wheel?.querySelectorAll('.segment') || [];
+            segments.forEach((el, i) => {
+                el.classList.remove('ring-4', 'ring-blue-500');
+                if (i === index) {
+                    el.classList.add('ring-4', 'ring-blue-500');
+                    gsap.fromTo(el, 
+                        { scale: 1, filter: 'brightness(1)' }, 
+                        { scale: 1.05, filter: 'brightness(1.3)', duration: 0.3, yoyo: true, repeat: 3 }
+                    );
+                    
+                    // Also highlight the image within the winning segment
+                    const img = el.querySelector('.segment-image');
+                    if (img) {
+                        gsap.fromTo(img, 
+                            { scale: 1 }, 
+                            { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 }
+                        );
+                    }
+                }
+            });
+            
+            // Make the arrow bounce
+            gsap.fromTo('.arrow', 
+                { y: 0 }, 
+                { y: -10, duration: 0.2, yoyo: true, repeat: 5 }
+            );
+        }
+
+        function launchConfetti(rarity) {
+            // Google colors
+            const colors = ['#4285f4', '#34a853', '#fbbc05', '#ea4335'];
+
+            confetti({
+                particleCount: rarity === 'SSR' ? 300 : 150,
+                spread: 90,
+                origin: { y: 0.6 },
+                colors: colors,
+                shapes: rarity === 'SSR' ? ['star', 'circle'] : ['circle'],
+                disableForReducedMotion: true
+            });
+        }
+
+        function showWinner() {
+            if (!winner) return;
+
+            // Get popup elements
+            const popup = document.getElementById('result-popup');
+            const popupImage = document.getElementById('popup-image');
+            const popupTitle = document.getElementById('popup-title');
+            const popupSubtitle = document.getElementById('popup-subtitle');
+            const popupRarity = document.getElementById('popup-rarity');
+            
+            // Set popup content
+            popupImage.src = winner.image;
+            popupImage.alt = winner.label;
+            popupImage.style.maxWidth = '150px';
+            popupImage.style.maxHeight = '150px';
+            popupImage.style.objectFit = 'contain';
+            popupImage.style.filter = 'drop-shadow(0 4px 6px rgba(0,0,0,0.2))';
+            
+            // Handle image errors
+            popupImage.onerror = () => {
+                console.log(`Error loading popup image for ${winner.label}, using fallback`);
+                if (winner.label === 'GDG Stickers') {
+                    popupImage.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                }
+            };
+            
+            // Special handling for custom sticker image in popup
+            if (winner.label === 'GDG Stickers') {
+                popupImage.style.maxWidth = '200px';
+                popupImage.style.maxHeight = '200px';
+                popupImage.style.background = 'transparent';
+            }
+            
+            if (winner.rarity === 'LOSE') {
+                popupTitle.textContent = 'Sorry!';
+                popupSubtitle.textContent = 'No prize this time';
+            } else {
+                popupTitle.textContent = winner.rarity === 'SSR' ? 'Congratulations!' : 'Better luck next time!';
+                popupSubtitle.textContent = `You got: ${winner.label}`;
+            }
+            
+            // Set rarity badge
+            popupRarity.textContent = RARITIES[winner.rarity].name;
+            popupRarity.style.backgroundColor = RARITIES[winner.rarity].color;
+            popupRarity.style.color = RARITIES[winner.rarity].textColor;
+            
+            // Show the popup with a slight delay to ensure animations complete
+            setTimeout(() => {
+                popup.classList.add('active');
+            }, 500);
+            
+            // Only show celebration for SSR (winning) items
+            if (winner.rarity === 'SSR') {
+                // Add pulse effect for winners
+                gsap.to('.popup-content', {
+                    boxShadow: '0 0 30px rgba(66, 133, 244, 0.8)',
+                    duration: 1,
+                    repeat: 2,
+                    yoyo: true
+                });
+                
+                // Add confetti inside the popup
+                setTimeout(() => {
+                    const popupRect = document.querySelector('.popup-content').getBoundingClientRect();
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { 
+                            x: (popupRect.left + popupRect.width/2) / window.innerWidth,
+                            y: (popupRect.top + popupRect.height/3) / window.innerHeight
+                        },
+                        colors: ['#4285f4', '#34a853', '#fbbc05', '#ea4335'],
+                        disableForReducedMotion: true
+                    });
+                }, 600);
+            }
+            
+            // Add close button functionality
+            document.getElementById('popup-close').addEventListener('click', () => {
+                popup.classList.remove('active');
+            });
+        }
+
+        function showMotivation() {
+            const motivationDiv = document.getElementById('motivation');
+            if (winner.rarity === 'SSR') {
+                motivationDiv.textContent = "Amazing! You won the GDG Swag Pack!";
+            } else {
+                motivationDiv.textContent = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
+            }
+        }
+
+        function renderStats() {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = '';
+            
+            // Only show counts, not percentages
+            Object.entries(wonCount).forEach(([rarity, count]) => {
+                const div = document.createElement('div');
+                div.className = `p-2 rounded flex justify-between items-center`;
+                div.style.backgroundColor = RARITIES[rarity].color + '20'; // 20% opacity
+                div.style.borderLeft = `4px solid ${RARITIES[rarity].color}`;
+                
+                // Only show the rarity name and count, not the percentage
+                const rarityLabel = document.createElement('span');
+                rarityLabel.className = 'font-medium text-gray-800';
+                rarityLabel.textContent = RARITIES[rarity].name;
+                
+                const countLabel = document.createElement('span');
+                countLabel.className = 'text-gray-700';
+                countLabel.textContent = count;
+                
+                div.appendChild(rarityLabel);
+                div.appendChild(countLabel);
+                
+                statsDiv.appendChild(div);
+            });
+            
+            document.getElementById('total-spin').textContent = `Total Spins: ${spinCount}`;
+        }
+
+        function handleKeyPress(e) {
+            keyPressSequence.push(e.code);
+            keyPressSequence = keyPressSequence.slice(-DEV_MODE_SEQUENCE.length);
+            if (keyPressSequence.join('') === DEV_MODE_SEQUENCE.join('')) {
+                devMode = true;
+                console.log('%cDeveloper Mode Active!', 'color: #4285f4; font-weight: bold;');
+                document.getElementById('dev-button').classList.remove('hidden');
+            }
+        }
+
+        function resetStatistics(code = '') {
+            const RESET_CODE = 'reset-wheel-stats';
+            if (code === RESET_CODE || devMode) {
+                spinCount = 0;
+                wonCount = { SSR: 0, SR: 0, R: 0, COMMON: 0, LOSE: 0 };
+                saveToLocalStorage();
+                winner = null;
+                renderStats();
+                document.getElementById('motivation').textContent = '';
+                const segments = wheel?.querySelectorAll('.segment') || [];
+                segments.forEach(el => {
+                    el.classList.remove('ring-4', 'ring-blue-500');
+                });
+                console.log('%cStatistics successfully reset!', 'color: #34a853; font-weight: bold;');
+            } else {
+                console.warn('⚠️ Wrong code or developer mode not active!');
+            }
+        }
+
+        document.getElementById('dev-button').addEventListener('click', () => resetStatistics());
+
+        // Helper function to create lighter/darker color variations
+        function adjustColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => 
+                ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+        }
+    </script>
+</body>
+</html>
