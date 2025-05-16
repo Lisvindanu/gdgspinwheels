@@ -29,7 +29,7 @@
             touch-action: none;
             user-select: none;
             position: relative;
-            padding: 20px;
+            padding: 40px; /* Increased from 20px */
             border: 12px solid #4285f4;
             border-radius: 50%;
             box-shadow: 0 0 30px rgba(66, 133, 244, 0.6);
@@ -71,56 +71,83 @@
         }
         
         .segment-image {
-            width: 90px;  /* Increased from 70px */
-            height: 90px; /* Increased from 70px */
+            width: 90px;
+            height: 90px;
             object-fit: contain;
-            background: rgba(255,255,255,0.95); /* More opaque background */
+            background: rgba(255,255,255,0.95);
             border-radius: 8px;
-            padding: 6px; /* Increased padding */
+            padding: 6px;
             border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* Stronger shadow */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             transition: all 0.3s ease;
-            margin-bottom: 8px; /* Add space between image and text */
-            z-index: 2; /* Ensure images appear above segment backgrounds */
+            margin-bottom: 8px;
+            z-index: 2;
             max-width: 100%;
             max-height: 100%;
         }
         
         .segment-label {
-            font-size: 1rem; /* Increased from 0.875rem */
+            font-size: 1rem;
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             margin-top: 8px;
-            max-width: 120px; /* Increased from 100px */
+            max-width: 120px;
             text-align: center;
-            background-color: rgba(0,0,0,0.4); /* Add background to make text more readable */
+            background-color: rgba(0,0,0,0.4);
             padding: 4px 8px;
             border-radius: 4px;
         }
         
         .arrow {
             position: absolute;
-            top: -40px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: #ea4335;
-            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.4));
-            z-index: 10;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            transition: all 0.3s ease;
+            width: 20px; /* Wider for the triangle shape */
+            height: 100px; /* Shorter length */
+            z-index: 20;
+            transform-origin: center center;
+            transform: translate(-50%, -50%);
         }
         
-        .arrow::after {
-            content: '';
+        .arrow-body {
             position: absolute;
-            top: 10px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000; /* Black arrow */
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* Triangle shape */
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        /* Remove the separate arrow head */
+        .arrow-head {
+            display: none;
+        }
+        
+        .center-dot {
+            position: absolute;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             width: 20px;
             height: 20px;
             background-color: white;
+            border: 3px solid #000000;
+            border-radius: 50%;
+            z-index: 25; /* Increased to be above the arrow */
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .center-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background-color: #000000;
             border-radius: 50%;
         }
         
@@ -321,9 +348,12 @@
     
     <div id="app" class="container">
         <div class="wheel-wrapper">
-            <div class="wheel relative w-[500px] h-[500px] rounded-full shadow-lg" id="wheel">
+            <div class="wheel relative w-[600px] h-[600px] rounded-full shadow-lg" id="wheel">
                 <div class="glow-effect" id="glow"></div>
-                <div class="arrow"></div>
+                <div class="arrow" id="spinner-arrow">
+                    <div class="arrow-body"></div>
+                </div>
+                <div class="center-dot"></div>
             </div>
         </div>
         
@@ -339,21 +369,6 @@
         </button>
         
         <div id="motivation" class="text-center text-gray-700 max-w-xs"></div>
-        
-        <div class="stats-box p-4 w-72 hidden">
-            <h3 class="font-medium mb-2 text-gray-800">Gacha Statistics:</h3>
-            <div id="stats" class="grid grid-cols-1 gap-2">
-                <!-- Stats will be inserted here without showing rates -->
-            </div>
-            <div class="mt-2 text-center text-gray-700" id="total-spin">Total Spins: 0</div>
-        </div>
-        
-        <button id="dev-button" class="button dev-mode-button hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"></path>
-            </svg>
-            Reset Statistics
-        </button>
     </div>
     
     <!-- Result Popup -->
@@ -402,17 +417,22 @@
             retina_detect: true
         });
 
-        // Rarity configuration with Google colors
+        // Rarity configuration with Google colors - simplified
         const RARITIES = {
-            SSR: { rate: 0.5, color: '#4285f4', textColor: 'white', name: 'SSR' }, // Blue
-            SR: { rate: 0.2, color: '#ea4335', textColor: 'white', name: 'SR' }, // Red
-            R: { rate: 0.2, color: '#34a853', textColor: 'white', name: 'R' }, // Green
-            COMMON: { rate: 99, color: '#fbbc05', textColor: 'white', name: 'COMMON' }, // Yellow
-            LOSE: { rate: 0.1, color: '#bdc1c6', textColor: 'white', name: 'LOSE' } // Gray
+            SSR: { rate: 0.5, color: '#f8f9fa', textColor: '#202124', name: 'SSR' }, // White
+            SR: { rate: 0.2, color: '#f8f9fa', textColor: '#202124', name: 'SR' }, // White
+            R: { rate: 0.2, color: '#f8f9fa', textColor: '#202124', name: 'R' }, // White
+            COMMON: { rate: 99, color: '#f8f9fa', textColor: '#202124', name: 'COMMON' }, // White
+            LOSE: { rate: 0.1, color: '#f8f9fa', textColor: '#202124', name: 'LOSE' } // White
         };
 
-        // Prize list with Google products
+        // Prize list with Google products - reordered to put stickers at top
         const items = [
+            { 
+                label: 'GDG Stickers', 
+                rarity: 'COMMON', 
+                image: 'Sticker2.png'
+            },
             { 
                 label: 'Google Pixel 8', 
                 rarity: 'SSR', 
@@ -427,11 +447,6 @@
                 label: 'Pixel Buds Pro', 
                 rarity: 'R', 
                 image: 'https://images.tokopedia.net/img/cache/700/hDjmkQ/2022/10/4/7082ea6a-cd78-4302-87be-7575316b948d.jpg'
-            },
-            { 
-                label: 'GDG Stickers', 
-                rarity: 'COMMON', 
-                image: 'https://i.ibb.co/TqnYdnG3/Sticker2.png'
             },
             { 
                 label: 'Pixel Watch', 
@@ -452,15 +467,6 @@
         let spinSound, winSound, nearMissSound, loseSound;
         let hammer = null;
 
-        // Local statistics
-        let spinCount = 0;
-        let wonCount = { SSR: 0, SR: 0, R: 0, COMMON: 0, LOSE: 0 };
-
-        // Developer Mode
-        let devMode = false;
-        let keyPressSequence = [];
-        const DEV_MODE_SEQUENCE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'KeyA', 'KeyB'];
-
         // Motivation messages with Google-themed text
         const MOTIVATION_MESSAGES = [
             "Almost got the grand prize! Try again!",
@@ -472,14 +478,12 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
-            loadFromLocalStorage();
-            
             // Handle image errors
             const handleImageError = (img) => {
                 img.onerror = null; // Prevent infinite loops
                 if (img.src.includes('i.imgur.com')) {
                     // Fallback for imgur images
-                    img.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    img.src = 'Sticker2.png';
                     console.log('Using fallback image for stickers');
                 }
             };
@@ -489,7 +493,7 @@
             if (stickerItem) {
                 const testImg = new Image();
                 testImg.onerror = () => {
-                    stickerItem.image = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    stickerItem.image = 'Sticker2.png';
                     console.log('Updated sticker image to fallback URL');
                 };
                 testImg.src = stickerItem.image;
@@ -498,9 +502,6 @@
             initializeSounds();
             setupWheel();
             setupHammerJS();
-            renderStats();
-            window.addEventListener('keydown', handleKeyPress);
-            window.resetWheelStats = resetStatistics;
             document.getElementById('spin-button').addEventListener('click', () => spinWheel(4));
             
             // Close popup when clicking outside
@@ -513,34 +514,8 @@
 
         // Cleanup on unload
         window.addEventListener('beforeunload', () => {
-            window.removeEventListener('keydown', handleKeyPress);
-            delete window.resetWheelStats;
             if (hammer) hammer.destroy();
         });
-
-        function loadFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('googleWheelGameData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    spinCount = data.spinCount || 0;
-                    wonCount = { ...wonCount, ...data.wonCount };
-                }
-            } catch (error) {
-                console.error('Error loading from localStorage:', error);
-            }
-        }
-
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('googleWheelGameData', JSON.stringify({
-                    spinCount,
-                    wonCount
-                }));
-            } catch (error) {
-                console.error('Error saving to localStorage:', error);
-            }
-        }
 
         function initializeSounds() {
             try {
@@ -571,73 +546,106 @@
         }
 
         function setupWheel() {
-            wheel.innerHTML = '<div class="glow-effect" id="glow"></div><div class="arrow"></div>';
+            wheel.innerHTML = '<div class="glow-effect" id="glow"></div><div class="arrow" id="spinner-arrow"><div class="arrow-body"></div></div><div class="center-dot"></div>';
             const sliceAngle = 360 / items.length;
             
             // Calculate optimal positioning based on number of items
-            const distanceFromCenter = items.length <= 6 ? 170 : 150;
-            const imageSize = items.length <= 6 ? 90 : 70;
+            const distanceFromCenter = items.length <= 6 ? 180 : 150;
+            const imageSize = items.length <= 6 ? 100 : 80; // Increased image size
             
+            // First create all segments
             items.forEach((item, i) => {
                 const segment = document.createElement('div');
                 segment.className = `segment absolute w-full h-full`;
                 segment.style.transform = `rotate(${i * sliceAngle}deg)`;
-                segment.style.clipPath = `path('M 250 250 L 250 0 A 250 250 0 0 1 ${250 + 250 * Math.cos(sliceAngle * Math.PI / 180)} ${250 - 250 * Math.sin(sliceAngle * Math.PI / 180)} Z')`;
+                segment.style.clipPath = `path('M 300 300 L 300 0 A 300 300 0 0 1 ${300 + 300 * Math.cos(sliceAngle * Math.PI / 180)} ${300 - 300 * Math.sin(sliceAngle * Math.PI / 180)} Z')`;
                 
-                // Create gradient background for segments
-                const mainColor = RARITIES[item.rarity].color;
-                const lighterColor = adjustColor(mainColor, 30);
-                segment.style.background = `linear-gradient(${i * sliceAngle + 45}deg, ${mainColor} 0%, ${lighterColor} 100%)`;
+                // Create uniform white background for all segments
+                segment.style.backgroundColor = '#f8f9fa';
                 
-                // Add border between segments
-                segment.style.border = '1px solid rgba(255,255,255,0.3)';
+                // Add subtle borders between segments
+                segment.style.border = '1px solid rgba(0,0,0,0.1)';
+                
+                // Add a small colored indicator based on rarity
+                const indicator = document.createElement('div');
+                indicator.style.position = 'absolute';
+                indicator.style.top = '20px';
+                indicator.style.left = '300px';
+                indicator.style.width = '20px';
+                indicator.style.height = '20px';
+                indicator.style.borderRadius = '50%';
+                
+                // Use Google colors for the indicators
+                switch(item.rarity) {
+                    case 'SSR': indicator.style.backgroundColor = '#4285f4'; break; // Blue
+                    case 'SR': indicator.style.backgroundColor = '#ea4335'; break;  // Red
+                    case 'R': indicator.style.backgroundColor = '#34a853'; break;   // Green
+                    case 'COMMON': indicator.style.backgroundColor = '#fbbc05'; break; // Yellow
+                    case 'LOSE': indicator.style.backgroundColor = '#bdc1c6'; break; // Gray
+                }
+                
+                segment.appendChild(indicator);
+                wheel.appendChild(segment);
+            });
+            
+            // Then add content to each segment (separate loop to ensure proper z-index stacking)
+            items.forEach((item, i) => {
+                // Find the colored dot position for this segment
+                const dotAngle = i * sliceAngle;
+                const dotRadians = dotAngle * Math.PI / 180;
                 
                 // Create content container with improved positioning
                 const content = document.createElement('div');
-                content.className = 'absolute flex flex-col items-center justify-center';
+                content.className = 'absolute flex items-center justify-center';
+                content.dataset.rarity = item.rarity;
+                content.dataset.index = i;
                 
-                // Calculate optimal position based on slice angle
-                const contentAngle = -(i * sliceAngle + sliceAngle / 2);
-                const radians = contentAngle * Math.PI / 180;
+                // Position at the colored dot location
+                const dotDistance = 250; // Reduced distance from center to the colored dot
+                const posX = Math.sin(dotRadians) * dotDistance;
+                const posY = -Math.cos(dotRadians) * dotDistance;
                 
-                // Position at a fixed distance from center along the segment's midline
-                const posX = Math.sin(radians) * distanceFromCenter;
-                const posY = -Math.cos(radians) * distanceFromCenter;
-                
-                content.style.transform = `translate(-50%, -50%) rotate(${contentAngle}deg)`;
+                content.style.transform = `translate(-50%, -50%)`; // No rotation
                 content.style.left = `calc(50% + ${posX}px)`;
                 content.style.top = `calc(50% + ${posY}px)`;
-                content.style.width = '140px'; // Increased from 120px
-                content.style.zIndex = '5'; // Ensure content appears above segment backgrounds
+                content.style.width = `${imageSize}px`;
+                content.style.height = `${imageSize}px`;
+                content.style.zIndex = '10';
                 
                 // Create image container with improved styling for clarity
                 const imgContainer = document.createElement('div');
-                imgContainer.className = 'flex items-center justify-center';
-                imgContainer.style.width = `${imageSize}px`;
-                imgContainer.style.height = `${imageSize}px`;
-                imgContainer.style.backgroundColor = 'rgba(255,255,255,0.9)';
+                imgContainer.className = 'flex items-center justify-center rounded-lg overflow-hidden';
+                imgContainer.style.width = '100%';
+                imgContainer.style.height = '100%';
+                imgContainer.style.backgroundColor = 'rgba(255,255,255,0.95)';
                 imgContainer.style.borderRadius = '8px';
                 imgContainer.style.padding = '4px';
-                imgContainer.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-                imgContainer.style.marginBottom = '12px';
+                imgContainer.style.boxShadow = '0 4px 12px rgba(0,0,0,0.5)';
+                imgContainer.style.position = 'relative';
+                imgContainer.style.zIndex = '15';
                 
                 // Create image element with better styling
                 const img = document.createElement('img');
                 img.src = item.image;
                 img.alt = item.label;
-                img.className = 'segment-image';
                 img.style.objectFit = 'contain';
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.transition = 'transform 0.3s ease';
+                img.style.display = 'block';
                 
-                // Handle image errors
-                img.onerror = () => {
-                    console.log(`Error loading image for ${item.label}, using fallback`);
+                // Preload image to ensure it displays
+                const preloadImg = new Image();
+                preloadImg.onload = function() {
+                    img.src = this.src;
+                };
+                preloadImg.onerror = function() {
+                    console.log(`Error preloading image for ${item.label}, using fallback`);
                     if (item.label === 'GDG Stickers') {
                         img.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
                     }
                 };
+                preloadImg.src = item.image;
                 
                 // Special handling for the custom sticker image
                 if (item.label === 'GDG Stickers') {
@@ -646,26 +654,10 @@
                 
                 imgContainer.appendChild(img);
                 
-                // Add label text with better styling
-                const labelText = document.createElement('div');
-                labelText.textContent = item.label;
-                labelText.className = 'segment-label';
-                
-                // Add rarity badge
-                const rarityBadge = document.createElement('div');
-                rarityBadge.textContent = RARITIES[item.rarity].name;
-                rarityBadge.className = 'text-xs mt-1';
-                rarityBadge.style.background = 'rgba(255,255,255,0.2)';
-                rarityBadge.style.borderRadius = '10px';
-                rarityBadge.style.padding = '1px 6px';
-                rarityBadge.style.display = 'inline-block';
+                // No label text or rarity badge
                 
                 content.appendChild(imgContainer);
-                content.appendChild(labelText);
-                content.appendChild(rarityBadge);
-                
-                segment.appendChild(content);
-                wheel.appendChild(segment);
+                wheel.appendChild(content);
             });
         }
 
@@ -683,14 +675,9 @@
         }
 
         function getRandomRarity() {
-            const totalRate = Object.values(RARITIES).reduce((sum, r) => sum + r.rate, 0);
-            const rand = Math.random() * totalRate;
-            let cumulative = 0;
-            for (const [key, rarity] of Object.entries(RARITIES)) {
-                cumulative += rarity.rate;
-                if (rand <= cumulative) return key;
-            }
-            return 'COMMON';
+            // This function is no longer used for actual selection,
+            // but we keep it for compatibility with other code
+            return "COMMON";
         }
 
         function getItemByRarity(rarity) {
@@ -717,13 +704,9 @@
                 duration: 0.5
             });
 
-            const targetRarity = getRandomRarity();
+            // Always select the COMMON item (sticker)
+            const targetRarity = "COMMON";
             winner = getItemByRarity(targetRarity);
-            wonCount[targetRarity] = (wonCount[targetRarity] || 0) + 1;
-            spinCount++;
-
-            saveToLocalStorage();
-            renderStats();
 
             const winnerIndex = items.findIndex(item =>
                 item.label === winner.label && item.rarity === winner.rarity
@@ -736,16 +719,20 @@
                 return;
             }
 
-            animateWheel(winnerIndex, spinDuration, targetRarity);
+            // Use longer duration for more suspense - 8 seconds instead of 4
+            animateArrow(winnerIndex, 8, targetRarity);
         }
 
-        function animateWheel(index, duration, targetRarity) {
+        function animateArrow(index, duration, targetRarity) {
             const sliceAngle = 360 / items.length;
-            const randomOffset = Math.random() * (sliceAngle * 0.8);
-            const baseRotation = 360 * (5 + Math.floor(Math.random() * 3));
-            const targetAngle = baseRotation + (360 - index * sliceAngle - randomOffset);
+            // Calculate exact angle to point to the sticker
+            const targetAngle = index * sliceAngle;
+            const randomOffset = Math.random() * (sliceAngle * 0.3); // Smaller offset for more precision
+            const baseRotation = 360 * (10 + Math.floor(Math.random() * 5)); // Increased from 5 to 10-15 rotations
+            const finalAngle = baseRotation + targetAngle + randomOffset;
 
-            deg += targetAngle;
+            const arrow = document.getElementById('spinner-arrow');
+            let currentRotation = 0; // Start at 0 degrees (pointing up)
 
             if (spinSound) spinSound.play();
 
@@ -776,73 +763,75 @@
                 }
             });
 
-            // Determine if near-miss occurs (50% chance)
-            const hasNearMiss = Math.random() < 0.5;
+            // Add some fake suspense with near misses
+            const hasNearMiss = Math.random() < 0.8; // Increased to 80% chance for more suspense
             if (hasNearMiss) {
-                const nearMissRarity = getNearMissRarity(targetRarity);
-                if (nearMissRarity) {
-                    const nearMissIndex = items.findIndex(item => item.rarity === nearMissRarity);
-                    const nearMissAngle = baseRotation - (nearMissIndex * sliceAngle) - (sliceAngle / 2);
+                // Find a non-COMMON item for near miss
+                const nonCommonIndices = items
+                    .map((item, i) => item.rarity !== 'COMMON' ? i : -1)
+                    .filter(i => i !== -1);
+                
+                if (nonCommonIndices.length > 0) {
+                    // Pick a random non-COMMON item
+                    const nearMissIndex = nonCommonIndices[Math.floor(Math.random() * nonCommonIndices.length)];
+                    const nearMissAngle = nearMissIndex * sliceAngle;
 
+                    // Create more dramatic near misses with multiple slowdowns
                     timeline
-                        .to(wheel, {
-                            rotation: nearMissAngle,
-                            duration: duration * 0.5,
-                            ease: 'power2.inOut'
+                        .to(arrow, {
+                            rotation: baseRotation * 0.6, // First fast part
+                            duration: duration * 0.4,
+                            ease: 'power2.out'
                         })
-                        .to(wheel, {
-                            rotation: nearMissAngle + sliceAngle * 0.5,
+                        .to(arrow, {
+                            rotation: baseRotation * 0.8 + nearMissAngle - (sliceAngle * 0.3),
                             duration: duration * 0.3,
-                            ease: 'sine.inOut' // Natural slowdown
+                            ease: 'power1.inOut'
                         })
-                        .to(wheel, {
-                            rotation: deg,
-                            duration: duration * 0.2,
-                            ease: 'power4.out'
+                        .to(arrow, {
+                            rotation: baseRotation * 0.8 + nearMissAngle + (sliceAngle * 0.3),
+                            duration: duration * 0.15,
+                            ease: 'power1.inOut'
                         });
-
-                    gsap.to('#glow', {
-                        opacity: 0.9,
-                        duration: 0.4,
-                        repeat: 7,
-                        yoyo: true,
-                        delay: duration * 0.5
-                    });
+                    
+                    // Add a second near miss for more drama
+                    const secondMissIndex = nonCommonIndices[(nonCommonIndices.indexOf(nearMissIndex) + 1) % nonCommonIndices.length];
+                    const secondMissAngle = secondMissIndex * sliceAngle;
+                    
+                    timeline
+                        .to(arrow, {
+                            rotation: baseRotation * 0.9 + secondMissAngle - (sliceAngle * 0.2),
+                            duration: duration * 0.1,
+                            ease: 'power1.inOut'
+                        })
+                        .to(arrow, {
+                            rotation: finalAngle,
+                            duration: duration * 0.05,
+                            ease: 'power3.out'
+                        });
                 } else {
-                    // Without near-miss, spin directly
-                    timeline.to(wheel, {
-                        rotation: deg,
-                        duration: duration,
+                    // Just spin directly if no non-COMMON items
+                    timeline.to(arrow, {
+                        rotation: finalAngle,
+                        duration: duration * 1.5, // Longer duration
                         ease: 'power4.out'
-                    });
-                    gsap.to('#glow', {
-                        opacity: 0.7,
-                        duration: 0.5,
-                        repeat: 5,
-                        yoyo: true
                     });
                 }
             } else {
-                // Without near-miss
-                timeline.to(wheel, {
-                    rotation: deg,
-                    duration: duration,
+                // Without near-miss, spin directly but with longer duration
+                timeline.to(arrow, {
+                    rotation: finalAngle,
+                    duration: duration * 1.5, // Longer duration
                     ease: 'power4.out'
-                });
-                gsap.to('#glow', {
-                    opacity: 0.7,
-                    duration: 0.5,
-                    repeat: 5,
-                    yoyo: true
                 });
             }
             
             // Add wobble effect at the end
-            timeline.to(wheel, {
-                rotation: `+=${Math.random() * 5 - 2.5}`,
-                duration: 0.2,
+            timeline.to(arrow, {
+                rotation: `+=${Math.random() * 3 - 1.5}`,
+                duration: 0.15,
                 ease: 'power1.inOut',
-                delay: duration - 0.2
+                delay: duration - 0.15
             });
         }
 
@@ -853,25 +842,28 @@
                 if (i === index) {
                     el.classList.add('ring-4', 'ring-blue-500');
                     gsap.fromTo(el, 
-                        { scale: 1, filter: 'brightness(1)' }, 
-                        { scale: 1.05, filter: 'brightness(1.3)', duration: 0.3, yoyo: true, repeat: 3 }
+                        { filter: 'brightness(1)' }, 
+                        { filter: 'brightness(1.1)', duration: 0.3, yoyo: true, repeat: 3 }
                     );
                     
-                    // Also highlight the image within the winning segment
-                    const img = el.querySelector('.segment-image');
-                    if (img) {
-                        gsap.fromTo(img, 
-                            { scale: 1 }, 
-                            { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 }
-                        );
+                    // Find the corresponding content for this segment
+                    const contents = wheel?.querySelectorAll('.flex.items-center.justify-center') || [];
+                    if (contents[i]) {
+                        const img = contents[i].querySelector('img');
+                        if (img) {
+                            gsap.fromTo(img, 
+                                { scale: 1 }, 
+                                { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 }
+                            );
+                        }
                     }
                 }
             });
             
-            // Make the arrow bounce
-            gsap.fromTo('.arrow', 
-                { y: 0 }, 
-                { y: -10, duration: 0.2, yoyo: true, repeat: 5 }
+            // Make the arrow pulse instead of bounce
+            gsap.fromTo('.arrow-body', 
+                { scale: 1, opacity: 0.8 }, 
+                { scale: 1.2, opacity: 1, duration: 0.3, yoyo: true, repeat: 5 }
             );
         }
 
@@ -979,72 +971,6 @@
             } else {
                 motivationDiv.textContent = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
             }
-        }
-
-        function renderStats() {
-            const statsDiv = document.getElementById('stats');
-            statsDiv.innerHTML = '';
-            
-            // Only show counts, not percentages
-            Object.entries(wonCount).forEach(([rarity, count]) => {
-                const div = document.createElement('div');
-                div.className = `p-2 rounded flex justify-between items-center`;
-                div.style.backgroundColor = RARITIES[rarity].color + '20'; // 20% opacity
-                div.style.borderLeft = `4px solid ${RARITIES[rarity].color}`;
-                
-                // Only show the rarity name and count, not the percentage
-                const rarityLabel = document.createElement('span');
-                rarityLabel.className = 'font-medium text-gray-800';
-                rarityLabel.textContent = RARITIES[rarity].name;
-                
-                const countLabel = document.createElement('span');
-                countLabel.className = 'text-gray-700';
-                countLabel.textContent = count;
-                
-                div.appendChild(rarityLabel);
-                div.appendChild(countLabel);
-                
-                statsDiv.appendChild(div);
-            });
-            
-            document.getElementById('total-spin').textContent = `Total Spins: ${spinCount}`;
-        }
-
-        function handleKeyPress(e) {
-            keyPressSequence.push(e.code);
-            keyPressSequence = keyPressSequence.slice(-DEV_MODE_SEQUENCE.length);
-            if (keyPressSequence.join('') === DEV_MODE_SEQUENCE.join('')) {
-                devMode = true;
-                console.log('%cDeveloper Mode Active!', 'color: #4285f4; font-weight: bold;');
-                document.getElementById('dev-button').classList.remove('hidden');
-            }
-        }
-
-        function resetStatistics(code = '') {
-            const RESET_CODE = 'reset-wheel-stats';
-            if (code === RESET_CODE || devMode) {
-                spinCount = 0;
-                wonCount = { SSR: 0, SR: 0, R: 0, COMMON: 0, LOSE: 0 };
-                saveToLocalStorage();
-                winner = null;
-                renderStats();
-                document.getElementById('motivation').textContent = '';
-                const segments = wheel?.querySelectorAll('.segment') || [];
-                segments.forEach(el => {
-                    el.classList.remove('ring-4', 'ring-blue-500');
-                });
-                console.log('%cStatistics successfully reset!', 'color: #34a853; font-weight: bold;');
-            } else {
-                console.warn('⚠️ Wrong code or developer mode not active!');
-            }
-        }
-
-        document.getElementById('dev-button').addEventListener('click', () => resetStatistics());
-
-        // Helper function to create lighter/darker color variations
-        function adjustColor(color, amount) {
-            return '#' + color.replace(/^#/, '').replace(/../g, color => 
-                ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
         }
     </script>
 </body>
