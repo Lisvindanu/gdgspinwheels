@@ -29,8 +29,8 @@
             touch-action: none;
             user-select: none;
             position: relative;
-            padding: 40px; /* Increased from 20px */
-            border: 12px solid #4285f4;
+            padding: 20px; /* Reduced from 40px */
+            border: 8px solid #4285f4; /* Reduced from 12px */
             border-radius: 50%;
             box-shadow: 0 0 30px rgba(66, 133, 244, 0.6);
             background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,240,240,0.5) 100%);
@@ -102,11 +102,12 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 20px; /* Wider for the triangle shape */
-            height: 100px; /* Shorter length */
+            width: 15px; /* Reduced from 20px */
+            height: 75px; /* Reduced from 100px */
             z-index: 20;
             transform-origin: center center;
             transform: translate(-50%, -50%);
+            will-change: transform; /* Optimize for animations */
         }
         
         .arrow-body {
@@ -130,8 +131,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
+            width: 15px; /* Reduced from 20px */
+            height: 15px; /* Reduced from 20px */
             background-color: white;
             border: 3px solid #000000;
             border-radius: 50%;
@@ -145,8 +146,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
+            width: 5px; /* Reduced from 6px */
+            height: 5px; /* Reduced from 6px */
             background-color: #000000;
             border-radius: 50%;
         }
@@ -201,12 +202,80 @@
         
         .container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row; /* Changed from column to row */
+            align-items: flex-start; /* Changed from center to flex-start */
             justify-content: center;
             min-height: 100vh;
             padding: 2rem;
+            gap: 2rem;
+            flex-wrap: wrap; /* Added to allow wrapping on smaller screens */
+        }
+        
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 1.5rem;
+        }
+        
+        .merch-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .merch-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .merch-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .merch-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .merch-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .merch-image {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+        }
+        
+        .merch-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        
+        .merch-price {
+            color: #4285f4;
+            font-weight: 700;
         }
         
         .stats-box {
@@ -335,6 +404,57 @@
             font-weight: 500;
             margin-top: 1rem;
         }
+        
+        /* Media queries for responsive layout */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .wheel-section, .merch-section {
+                width: 100%;
+                max-width: 600px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .wheel {
+                width: 350px !important;
+                height: 350px !important;
+            }
+            
+            .merch-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .wheel-wrapper {
+                padding: 15px;
+                border-width: 6px;
+            }
+            
+            .arrow {
+                height: 60px;
+            }
+            
+            /* T-shirt modal mobile styles */
+            .popup-content {
+                padding: 1.5rem !important;
+            }
+            
+            #tshirt-modal .popup-content {
+                width: 95% !important;
+            }
+            
+            #tshirt-modal h2 {
+                font-size: 1.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            #tshirt-modal .position-relative {
+                height: 250px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -347,28 +467,41 @@
     </div>
     
     <div id="app" class="container">
-        <div class="wheel-wrapper">
-            <div class="wheel relative w-[600px] h-[600px] rounded-full shadow-lg" id="wheel">
-                <div class="glow-effect" id="glow"></div>
-                <div class="arrow" id="spinner-arrow">
-                    <div class="arrow-body"></div>
+        <div class="wheel-section">
+            <div class="wheel-wrapper">
+                <div class="wheel relative w-[450px] h-[450px] rounded-full shadow-lg" id="wheel">
+                    <div class="glow-effect" id="glow"></div>
+                    <div class="arrow" id="spinner-arrow">
+                        <div class="arrow-body"></div>
+                    </div>
+                    <div class="center-dot"></div>
                 </div>
-                <div class="center-dot"></div>
             </div>
+            
+            <p class="text-center text-xl font-medium">Spin the Wheel of Fortune!</p>
+            
+            <button id="spin-button" class="button spin-button flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                    <path d="M12 18l-3-3 3-3"></path>
+                    <path d="M8 15h8"></path>
+                </svg>
+                Spin Now!
+            </button>
+            
+            <div id="motivation" class="text-center text-gray-700 max-w-xs"></div>
         </div>
         
-        <p class="text-center text-xl font-medium">Spin the Wheel of Fortune!</p>
-        
-        <button id="spin-button" class="button spin-button flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
-                <path d="M12 18l-3-3 3-3"></path>
-                <path d="M8 15h8"></path>
-            </svg>
-            Spin Now!
-        </button>
-        
-        <div id="motivation" class="text-center text-gray-700 max-w-xs"></div>
+        <div class="merch-section">
+            <h2 class="merch-title">GDG T-Shirt</h2>
+            <div class="merch-item" style="width: 100%; padding: 2rem; cursor: pointer;" id="show-tshirt">
+                <img src="https://foto.kontan.co.id/iQnszAxkehh5kjQ2aktpItC2b2w=/smart/2022/11/14/1047985809p.jpg" alt="GDGoC Universitas Pasundan T-Shirt" class="merch-image" style="height: 200px;">
+                <div class="merch-name" style="font-size: 1.25rem; margin: 1rem 0;">GDGoC Universitas Pasundan T-Shirt</div>
+                <div class="merch-price" style="font-size: 1.2rem; color: #4285f4;">Rp50.000</div>
+                <p style="color: #5f6368; margin-top: 0.5rem; font-size: 0.9rem;">Available at the GDGoC booth</p>
+                <button class="button spin-button mt-4" style="background-color: #4285f4; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 500;" id="show-tshirt-btn">See Details</button>
+            </div>
+        </div>
     </div>
     
     <!-- Result Popup -->
@@ -379,6 +512,32 @@
             <div class="popup-title" id="popup-title"></div>
             <div class="popup-subtitle" id="popup-subtitle"></div>
             <div class="popup-rarity" id="popup-rarity"></div>
+        </div>
+    </div>
+    
+    <!-- T-Shirt Modal -->
+    <div class="popup-overlay" id="tshirt-modal">
+        <div class="popup-content" style="max-width: 600px; width: 90%;">
+            <div class="popup-close" id="tshirt-modal-close">✕</div>
+            <h2 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem;">GDGoC Universitas Pasundan T-Shirt</h2>
+            
+            <!-- T-shirt image viewer with front/back options -->
+            <div style="margin-bottom: 1.5rem; text-align: center;">
+                <div style="position: relative; width: 100%; height: 300px; margin-bottom: 1rem;">
+                    <img id="tshirt-front-img" src="https://down-id.img.susercontent.com/file/sg-11134201-22110-6447droakljvd2" alt="GDG T-Shirt Front" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 1;">
+                    <img id="tshirt-back-img" src="https://foto.kontan.co.id/iQnszAxkehh5kjQ2aktpItC2b2w=/smart/2022/11/14/1047985809p.jpg" alt="GDG T-Shirt Back" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 0;">
+                </div>
+                <div style="display: flex; justify-content: center; gap: 1rem;">
+                    <button id="view-front-btn" style="padding: 0.5rem 1rem; border: 1px solid #dadce0; border-radius: 4px; background: #e8f0fe; cursor: pointer; font-weight: 500; color: #1a73e8;">Front View</button>
+                    <button id="view-back-btn" style="padding: 0.5rem 1rem; border: 1px solid #dadce0; border-radius: 4px; background: #f8f9fa; cursor: pointer; font-weight: 500;">Back View</button>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <p style="margin-bottom: 1rem; color: #5f6368; line-height: 1.5;">This official GDG T-shirt features the Google Developer Groups logo. Made from 100% cotton, it's comfortable for all-day wear at your favorite tech events.</p>
+                <div style="font-size: 1.5rem; color: #4285f4; font-weight: 700; margin: 1rem 0;">Rp50.000</div>
+                <p style="color: #5f6368; margin-top: 1rem; font-weight: 500;">Available at the GDGoC booth!</p>
+            </div>
         </div>
     </div>
     
@@ -456,7 +615,7 @@
             { 
                 label: 'Nothing', 
                 rarity: 'LOSE', 
-                image: 'https://developers.google.com/site-assets/images/home/developers-logo-color.svg'
+                image: 'https://psrefstuff.lenovo.com/syspool//Sys/Image/Legion/Legion_5_15ARH7H/Lenovo_Legion_5_15ARH7H_CT2_02.png'
             }
         ];
 
@@ -485,6 +644,10 @@
                     // Fallback for imgur images
                     img.src = 'Sticker2.png';
                     console.log('Using fallback image for stickers');
+                } else if (img.src.includes('psrefstuff.lenovo.com')) {
+                    // Fallback for Lenovo image
+                    img.src = 'https://p1-ofp.static.pub/fes/cms/2022/04/26/f1bfpozc1yfbob84t60oxu1pzuy0ku536491.png';
+                    console.log('Using fallback image for Lenovo laptop');
                 }
             };
             
@@ -502,12 +665,65 @@
             initializeSounds();
             setupWheel();
             setupHammerJS();
-            document.getElementById('spin-button').addEventListener('click', () => spinWheel(4));
+            document.getElementById('spin-button').addEventListener('click', () => spinWheel(3));
             
             // Close popup when clicking outside
             document.getElementById('result-popup').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('result-popup')) {
                     document.getElementById('result-popup').classList.remove('active');
+                }
+            });
+            
+            // T-shirt modal functionality
+            const tshirtModal = document.getElementById('tshirt-modal');
+            const showTshirtBtn = document.getElementById('show-tshirt-btn');
+            const showTshirt = document.getElementById('show-tshirt');
+            const tshirtModalClose = document.getElementById('tshirt-modal-close');
+            
+            // Front/back view functionality
+            const viewFrontBtn = document.getElementById('view-front-btn');
+            const viewBackBtn = document.getElementById('view-back-btn');
+            const tshirtFrontImg = document.getElementById('tshirt-front-img');
+            const tshirtBackImg = document.getElementById('tshirt-back-img');
+            
+            viewFrontBtn.addEventListener('click', () => {
+                tshirtFrontImg.style.opacity = '1';
+                tshirtBackImg.style.opacity = '0';
+                viewFrontBtn.style.background = '#e8f0fe';
+                viewFrontBtn.style.color = '#1a73e8';
+                viewBackBtn.style.background = '#f8f9fa';
+                viewBackBtn.style.color = 'inherit';
+            });
+            
+            viewBackBtn.addEventListener('click', () => {
+                tshirtFrontImg.style.opacity = '0';
+                tshirtBackImg.style.opacity = '1';
+                viewBackBtn.style.background = '#e8f0fe';
+                viewBackBtn.style.color = '#1a73e8';
+                viewFrontBtn.style.background = '#f8f9fa';
+                viewFrontBtn.style.color = 'inherit';
+            });
+            
+            // Open modal when button is clicked
+            showTshirtBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering the parent div click
+                tshirtModal.classList.add('active');
+            });
+            
+            // Open modal when T-shirt div is clicked
+            showTshirt.addEventListener('click', () => {
+                tshirtModal.classList.add('active');
+            });
+            
+            // Close modal when X is clicked
+            tshirtModalClose.addEventListener('click', () => {
+                tshirtModal.classList.remove('active');
+            });
+            
+            // Close modal when clicking outside
+            tshirtModal.addEventListener('click', (e) => {
+                if (e.target === tshirtModal) {
+                    tshirtModal.classList.remove('active');
                 }
             });
         });
@@ -549,16 +765,22 @@
             wheel.innerHTML = '<div class="glow-effect" id="glow"></div><div class="arrow" id="spinner-arrow"><div class="arrow-body"></div></div><div class="center-dot"></div>';
             const sliceAngle = 360 / items.length;
             
+            // Ensure arrow is properly initialized with GSAP
+            setTimeout(() => {
+                const arrow = document.getElementById('spinner-arrow');
+                gsap.set(arrow, { rotation: 0, transformOrigin: "center center" });
+            }, 0);
+            
             // Calculate optimal positioning based on number of items
-            const distanceFromCenter = items.length <= 6 ? 180 : 150;
-            const imageSize = items.length <= 6 ? 100 : 80; // Increased image size
+            const distanceFromCenter = items.length <= 6 ? 140 : 120; // Reduced from 180/150
+            const imageSize = items.length <= 6 ? 85 : 70; // Increased from 75/60 for larger images
             
             // First create all segments
             items.forEach((item, i) => {
                 const segment = document.createElement('div');
                 segment.className = `segment absolute w-full h-full`;
                 segment.style.transform = `rotate(${i * sliceAngle}deg)`;
-                segment.style.clipPath = `path('M 300 300 L 300 0 A 300 300 0 0 1 ${300 + 300 * Math.cos(sliceAngle * Math.PI / 180)} ${300 - 300 * Math.sin(sliceAngle * Math.PI / 180)} Z')`;
+                segment.style.clipPath = `path('M 225 225 L 225 0 A 225 225 0 0 1 ${225 + 225 * Math.cos(sliceAngle * Math.PI / 180)} ${225 - 225 * Math.sin(sliceAngle * Math.PI / 180)} Z')`; // Reduced from 300 to 225
                 
                 // Create uniform white background for all segments
                 segment.style.backgroundColor = '#f8f9fa';
@@ -570,9 +792,9 @@
                 const indicator = document.createElement('div');
                 indicator.style.position = 'absolute';
                 indicator.style.top = '20px';
-                indicator.style.left = '300px';
-                indicator.style.width = '20px';
-                indicator.style.height = '20px';
+                indicator.style.left = '225px'; // Reduced from 300 to 225
+                indicator.style.width = '15px'; // Reduced from 20px
+                indicator.style.height = '15px'; // Reduced from 20px
                 indicator.style.borderRadius = '50%';
                 
                 // Use Google colors for the indicators
@@ -601,7 +823,7 @@
                 content.dataset.index = i;
                 
                 // Position at the colored dot location
-                const dotDistance = 250; // Reduced distance from center to the colored dot
+                const dotDistance = 170; // Adjusted for better positioning with larger images
                 const posX = Math.sin(dotRadians) * dotDistance;
                 const posY = -Math.cos(dotRadians) * dotDistance;
                 
@@ -642,7 +864,9 @@
                 preloadImg.onerror = function() {
                     console.log(`Error preloading image for ${item.label}, using fallback`);
                     if (item.label === 'GDG Stickers') {
-                        img.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                        img.src = 'Sticker2.png';
+                    } else if (item.label === 'Nothing') {
+                        img.src = 'https://p1-ofp.static.pub/fes/cms/2022/04/26/f1bfpozc1yfbob84t60oxu1pzuy0ku536491.png';
                     }
                 };
                 preloadImg.src = item.image;
@@ -698,6 +922,11 @@
             spinning = true;
             document.getElementById('spin-button').disabled = true;
 
+            // Reset arrow position
+            const arrow = document.getElementById('spinner-arrow');
+            gsap.killTweensOf(arrow); // Kill any ongoing animations
+            gsap.set(arrow, { rotation: 0, transformOrigin: "center center" });
+
             // Add spinning glow effect
             gsap.to('.wheel-wrapper', {
                 boxShadow: '0 0 40px rgba(66, 133, 244, 0.8)',
@@ -719,8 +948,8 @@
                 return;
             }
 
-            // Use longer duration for more suspense - 8 seconds instead of 4
-            animateArrow(winnerIndex, 8, targetRarity);
+            // Use a shorter duration for faster results - 3 seconds instead of 5
+            animateArrow(winnerIndex, 3, targetRarity);
         }
 
         function animateArrow(index, duration, targetRarity) {
@@ -728,12 +957,14 @@
             // Calculate exact angle to point to the sticker
             const targetAngle = index * sliceAngle;
             const randomOffset = Math.random() * (sliceAngle * 0.3); // Smaller offset for more precision
-            const baseRotation = 360 * (10 + Math.floor(Math.random() * 5)); // Increased from 5 to 10-15 rotations
+            const baseRotation = 360 * (3 + Math.floor(Math.random() * 2)); // Reduced from 6-9 to 3-5 rotations
             const finalAngle = baseRotation + targetAngle + randomOffset;
 
             const arrow = document.getElementById('spinner-arrow');
-            let currentRotation = 0; // Start at 0 degrees (pointing up)
-
+            
+            // Reset arrow rotation before starting animation to ensure consistent behavior
+            gsap.set(arrow, { rotation: 0 });
+            
             if (spinSound) spinSound.play();
 
             const timeline = gsap.timeline({
@@ -754,17 +985,28 @@
                     } else {
                         if (nearMissSound) nearMissSound.play();
                     }
+                    
+                    // Highlight winner and show popup immediately
                     highlightWinner(index);
+                    showWinner(); // Show popup immediately
+                    
                     if (winner.rarity !== 'LOSE') {
                         launchConfetti(winner.rarity);
                     }
-                    showWinner();
+                    
                     showMotivation();
                 }
             });
 
+            // Ensure we always have at least a simple animation
+            timeline.to(arrow, {
+                rotation: baseRotation * 0.5,
+                duration: duration * 0.3,
+                ease: 'power2.out'
+            });
+
             // Add some fake suspense with near misses
-            const hasNearMiss = Math.random() < 0.8; // Increased to 80% chance for more suspense
+            const hasNearMiss = Math.random() < 0.6; // Reduced from 80% to 60% chance for faster results
             if (hasNearMiss) {
                 // Find a non-COMMON item for near miss
                 const nonCommonIndices = items
@@ -776,62 +1018,44 @@
                     const nearMissIndex = nonCommonIndices[Math.floor(Math.random() * nonCommonIndices.length)];
                     const nearMissAngle = nearMissIndex * sliceAngle;
 
-                    // Create more dramatic near misses with multiple slowdowns
+                    // Create more dramatic near misses with multiple slowdowns but faster
                     timeline
                         .to(arrow, {
-                            rotation: baseRotation * 0.6, // First fast part
-                            duration: duration * 0.4,
-                            ease: 'power2.out'
-                        })
-                        .to(arrow, {
                             rotation: baseRotation * 0.8 + nearMissAngle - (sliceAngle * 0.3),
-                            duration: duration * 0.3,
+                            duration: duration * 0.2, // Reduced from 0.3 to 0.2
                             ease: 'power1.inOut'
                         })
                         .to(arrow, {
                             rotation: baseRotation * 0.8 + nearMissAngle + (sliceAngle * 0.3),
-                            duration: duration * 0.15,
+                            duration: duration * 0.1, // Reduced from 0.15 to 0.1
                             ease: 'power1.inOut'
                         });
                     
-                    // Add a second near miss for more drama
+                    // Add a second near miss for more drama but faster
                     const secondMissIndex = nonCommonIndices[(nonCommonIndices.indexOf(nearMissIndex) + 1) % nonCommonIndices.length];
                     const secondMissAngle = secondMissIndex * sliceAngle;
                     
                     timeline
                         .to(arrow, {
                             rotation: baseRotation * 0.9 + secondMissAngle - (sliceAngle * 0.2),
-                            duration: duration * 0.1,
+                            duration: duration * 0.05, // Reduced from 0.1 to 0.05
                             ease: 'power1.inOut'
-                        })
-                        .to(arrow, {
-                            rotation: finalAngle,
-                            duration: duration * 0.05,
-                            ease: 'power3.out'
                         });
-                } else {
-                    // Just spin directly if no non-COMMON items
-                    timeline.to(arrow, {
-                        rotation: finalAngle,
-                        duration: duration * 1.5, // Longer duration
-                        ease: 'power4.out'
-                    });
                 }
-            } else {
-                // Without near-miss, spin directly but with longer duration
-                timeline.to(arrow, {
-                    rotation: finalAngle,
-                    duration: duration * 1.5, // Longer duration
-                    ease: 'power4.out'
-                });
             }
+            
+            // Always add final rotation to ensure the animation completes properly
+            timeline.to(arrow, {
+                rotation: finalAngle,
+                duration: duration * 0.35,
+                ease: 'power3.out'
+            });
             
             // Add wobble effect at the end
             timeline.to(arrow, {
                 rotation: `+=${Math.random() * 3 - 1.5}`,
                 duration: 0.15,
-                ease: 'power1.inOut',
-                delay: duration - 0.15
+                ease: 'power1.inOut'
             });
         }
 
@@ -843,7 +1067,7 @@
                     el.classList.add('ring-4', 'ring-blue-500');
                     gsap.fromTo(el, 
                         { filter: 'brightness(1)' }, 
-                        { filter: 'brightness(1.1)', duration: 0.3, yoyo: true, repeat: 3 }
+                        { filter: 'brightness(1.1)', duration: 0.2, yoyo: true, repeat: 2 }
                     );
                     
                     // Find the corresponding content for this segment
@@ -853,7 +1077,7 @@
                         if (img) {
                             gsap.fromTo(img, 
                                 { scale: 1 }, 
-                                { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 }
+                                { scale: 1.2, duration: 0.2, yoyo: true, repeat: 2 }
                             );
                         }
                     }
@@ -863,7 +1087,7 @@
             // Make the arrow pulse instead of bounce
             gsap.fromTo('.arrow-body', 
                 { scale: 1, opacity: 0.8 }, 
-                { scale: 1.2, opacity: 1, duration: 0.3, yoyo: true, repeat: 5 }
+                { scale: 1.2, opacity: 1, duration: 0.2, yoyo: true, repeat: 3 }
             );
         }
 
@@ -903,7 +1127,9 @@
             popupImage.onerror = () => {
                 console.log(`Error loading popup image for ${winner.label}, using fallback`);
                 if (winner.label === 'GDG Stickers') {
-                    popupImage.src = 'https://i.ibb.co/TqnYdnG3/Sticker2.png';
+                    popupImage.src = 'Sticker2.png';
+                } else if (winner.label === 'Nothing') {
+                    popupImage.src = 'https://p1-ofp.static.pub/fes/cms/2022/04/26/f1bfpozc1yfbob84t60oxu1pzuy0ku536491.png';
                 }
             };
             
@@ -927,10 +1153,10 @@
             popupRarity.style.backgroundColor = RARITIES[winner.rarity].color;
             popupRarity.style.color = RARITIES[winner.rarity].textColor;
             
-            // Show the popup with a slight delay to ensure animations complete
+            // Show the popup immediately with just a tiny delay to ensure animations complete
             setTimeout(() => {
                 popup.classList.add('active');
-            }, 500);
+            }, 50); // Reduced to 50ms for almost immediate display
             
             // Only show celebration for SSR (winning) items
             if (winner.rarity === 'SSR') {
@@ -942,7 +1168,7 @@
                     yoyo: true
                 });
                 
-                // Add confetti inside the popup
+                // Add confetti inside the popup immediately
                 setTimeout(() => {
                     const popupRect = document.querySelector('.popup-content').getBoundingClientRect();
                     confetti({
@@ -955,7 +1181,7 @@
                         colors: ['#4285f4', '#34a853', '#fbbc05', '#ea4335'],
                         disableForReducedMotion: true
                     });
-                }, 600);
+                }, 100); // Reduced to 100ms for almost immediate confetti
             }
             
             // Add close button functionality
